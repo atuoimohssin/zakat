@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة الزكاة الإسلامية</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* تنسيق الشريط المتحرك */
+        .ticker-wrapper {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            background: linear-gradient(45deg, #1a237e, #0d47a1);
+            color: white;
+            padding: 10px 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .ticker-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 30s linear infinite;
+            padding-left: 100%;
+            font-size: 1.1em;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* تنسيق المحتوى الرئيسي */
+        .app-container {
+            margin-top: 60px; /* مسافة أسفل الشريط */
+            padding: 20px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #1a237e;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+
+        .intro-text {
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .intro-text h2 {
+            color: #0d47a1;
+            margin-bottom: 15px;
+        }
+
+        .intro-text ul {
+            list-style-type: none;
+            padding-right: 20px;
+        }
+
+        .intro-text li {
+            margin-bottom: 10px;
+            position: relative;
+            padding-right: 25px;
+        }
+
+        .intro-text li:before {
+            content: "•";
+            color: #1a237e;
+            font-size: 1.5em;
+            position: absolute;
+            right: 0;
+            top: -2px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1a237e;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1.1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #1a237e;
+            outline: none;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #1a237e, #0d47a1);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: block;
+            margin: 20px auto;
+            min-width: 200px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .result {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .result h2 {
+            color: #1a237e;
+            margin-bottom: 15px;
+        }
+
+        .result p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .result span {
+            color: #0d47a1;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الشريط المتحرك -->
+    <div class="ticker-wrapper">
+        <div class="ticker-content" id="ticker">
+            جاري تحميل المعلومات...
+        </div>
+    </div>
+
+    <!-- محتوى التطبيق -->
+    <div class="app-container">
+        <!-- الصفحة الرئيسية -->
+        <div id="mainPage" class="container">
+            <h1>حاسبة الزكاة الإسلامية</h1>
+            <div class="intro-text">
+                <h2>مرحباً بكم في حاسبة الزكاة</h2>
+                <p>الزكاة هي الركن الثالث من أركان الإسلام، وهي حق معلوم في المال يجب صرفه لمستحقيه.</p>
+                <p>تساعدك هذه الحاسبة في حساب زكاة:</p>
+                <ul>
+                    <li>النقود والأموال السائلة</li>
+                    <li>الذهب والفضة</li>
+                    <li>عروض التجارة</li>
+                    <li>الأسهم والاستثمارات</li>
+                </ul>
+            </div>
+            <button id="showCalculator" class="btn">حاسبة الزكاة</button>
+        </div>
+
+        <!-- صفحة الحاسبة -->
+        <div id="calculatorPage" class="container hidden">
+            <h1>حساب الزكاة</h1>
+            <form id="zakatForm">
+                <div class="form-group">
+                    <label for="cash">النقود والأموال السائلة:</label>
+                    <input type="number" id="cash" name="cash" min="0" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gold">قيمة الذهب:</label>
+                    <input type="number" id="gold" name="gold" min="0" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="silver">قيمة الفضة:</label>
+                    <input type="number" id="silver" name="silver" min="0" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="trade">قيمة عروض التجارة:</label>
+                    <input type="number" id="trade" name="trade" min="0" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="stocks">قيمة الأسهم والاستثمارات:</label>
+                    <input type="number" id="stocks" name="stocks" min="0" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="debts">الديون المستحقة عليك:</label>
+                    <input type="number" id="debts" name="debts" min="0" step="0.01">
+                </div>
+
+                <button type="submit" class="btn">احسب الزكاة</button>
+            </form>
+
+            <div id="result" class="result hidden">
+                <h2>نتيجة حساب الزكاة</h2>
+                <p>إجمالي الأموال الزكوية: <span id="totalAmount">0</span></p>
+                <p>مقدار الزكاة الواجبة: <span id="zakatAmount">0</span></p>
+                <p>النصاب الحالي: <span id="nisabAmount">0</span></p>
+            </div>
+
+            <button id="backToMain" class="btn">العودة للصفحة الرئيسية</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // تهيئة المتغيرات العالمية
+            let userLocale = 'ar-SA';
+            let userCurrency = 'SAR';
+            let numberSystem = 'arab';
+            let currentGoldPrice = 0;
+
+            // تحويل الأرقام حسب النظام
+            function convertNumbers(num, system) {
+                const numbers = {
+                    'arab': ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'],
+                    'persian': ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'],
+                    'devanagari': ['०','१','२','३','४','५','६','७','८','९']
+                };
+                return num.toString().replace(/[0-9]/g, (d) => numbers[system][d]);
+            }
+
+            // تحديد موقع المستخدم
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (position) => {
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`);
+                        const data = await response.json();
+                        
+                        // تعيين اللغة والعملة
+                        switch(data.address.country_code) {
+                            case 'ir':
+                                userLocale = 'fa-IR';
+                                userCurrency = 'IRR';
+                                numberSystem = 'persian';
+                                break;
+                            case 'in':
+                                userLocale = 'hi-IN';
+                                userCurrency = 'INR';
+                                numberSystem = 'devanagari';
+                                break;
+                        }
+                        
+                        updateTicker();
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
+
+            // تحديث الشريط المتحرك
+            async function updateTicker() {
+                try {
+                    // جلب سعر الذهب (استبدل برابط API حقيقي)
+                    const goldResponse = await fetch(`https://api.example.com/gold-price?currency=${userCurrency}`);
+                    const goldData = await goldResponse.json();
+                    currentGoldPrice = (goldData.price_per_gram).toFixed(2);
+
+                    const now = new Date();
+                    const dateTimeStr = now.toLocaleDateString(userLocale, {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    const currencySymbols = {
+                        'SAR': 'ريال سعودي',
+                        'IRR': 'تومان',
+                        'INR': 'روبية'
+                    };
+
+                    const tickerText = `
+                        ${convertNumbers(dateTimeStr, numberSystem)} | 
+                        سعر جرام الذهب: ${convertNumbers(currentGoldPrice, numberSystem)} 
+                        ${currencySymbols[userCurrency]}
+                    `;
+
+                    document.getElementById('ticker').textContent = tickerText;
+                } catch (error) {
+                    console.error('Error updating ticker:', error);
+                }
+            }
+
+            // تحديث كل دقيقة
+            setInterval(updateTicker, 60000);
+
+            // التنقل بين الصفحات
+            const mainPage = document.getElementById('mainPage');
+            const calculatorPage = document.getElementById('calculatorPage');
+            const showCalculatorBtn = document.getElementById('showCalculator');
+            const backToMainBtn = document.getElementById('backToMain');
+            const zakatForm = document.getElementById('zakatForm');
+            const resultDiv = document.getElementById('result');
+
+            showCalculatorBtn.addEventListener('click', () => {
+                mainPage.classList.add('hidden');
+                calculatorPage.classList.remove('hidden');
+            });
+
+            backToMainBtn.addEventListener('click', () => {
+                calculatorPage.classList.add('hidden');
+                mainPage.classList.remove('hidden');
+                resultDiv.classList.add('hidden');
+                zakatForm.reset();
+            });
+
+            // حساب الزكاة
+            zakatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const values = ['cash', 'gold', 'silver', 'trade', 'stocks', 'debts']
+                    .map(id => parseFloat(document.getElementById(id).value) || 0);
+                
+                const totalAmount = values.slice(0, 5).reduce((a, b) => a + b, 0) - values[5];
+                const nisab = 85 * currentGoldPrice;
+                const zakatAmount = totalAmount >= nisab ? totalAmount * 0.025 : 0;
+
+                document.getElementById('totalAmount').textContent = 
+                    `${convertNumbers(totalAmount.toFixed(2), numberSystem)} ${currencySymbols[userCurrency]}`;
+                document.getElementById('zakatAmount').textContent = 
+                    `${convertNumbers(zakatAmount.toFixed(2), numberSystem)} ${currencySymbols[userCurrency]}`;
+                document.getElementById('nisabAmount').textContent = 
+                    `${convertNumbers(nisab.toFixed(2), numberSystem)} ${currencySymbols[userCurrency]}`;
+                
+                resultDiv.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
