@@ -1,47 +1,64 @@
-import React, { useState, useEffect } from 'react';
-import styled from '@emotion/styled';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 
-const TickerContainer = styled.div`
-  background: linear-gradient(45deg, #1a237e, #0d47a1);
-  color: white;
-  padding: 10px 0;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  overflow: hidden;
-`;
+const TickerBar = ({ goldPrice, currency, numberSystem }) => {
+    const [animation] = useState(new Animated.Value(0));
+    const [currentDateTime, setCurrentDateTime] = useState('');
 
-const TickerContent = styled.div`
-  white-space: nowrap;
-  animation: ticker 30s linear infinite;
-  padding-right: 100%;
+    useEffect(() => {
+        // تحريك النص
+        Animated.loop(
+            Animated.timing(animation, {
+                toValue: -1,
+                duration: 20000,
+                easing: Easing.linear,
+                useNativeDriver: true
+            })
+        ).start();
 
-  @keyframes ticker {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-`;
+        // تحديث التاريخ والوقت
+        const updateDateTime = () => {
+            const now = new Date();
+            setCurrentDateTime(now.toLocaleString('ar-SA'));
+        };
 
-const TickerBar = ({ goldPrice }) => {
-  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+        updateDateTime();
+        const interval = setInterval(updateDateTime, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentDateTime(new Date());
-    }, 1000);
+    const translateX = animation.interpolate({
+        inputRange: [-1, 0],
+        outputRange: [-300, 300]
+    });
 
-    return () => clearInterval(timer);
-  }, []);
-
-  return (
-    <TickerContainer>
-      <TickerContent>
-        {`التاريخ والوقت: ${currentDateTime.toLocaleString('ar-SA')} | 
-          سعر جرام الذهب: ${goldPrice} ريال سعودي`}
-      </TickerContent>
-    </TickerContainer>
-  );
+    return (
+        <View style={styles.container}>
+            <Animated.View style={[styles.ticker, { transform: [{ translateX }] }]}>
+                <Text style={styles.text}>
+                    {`التاريخ والوقت: ${currentDateTime} | سعر جرام الذهب: ${goldPrice} ${currency}`}
+                </Text>
+            </Animated.View>
+        </View>
+    );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        backgroundColor: '#1a237e',
+        height: 40,
+        overflow: 'hidden',
+    },
+    ticker: {
+        position: 'absolute',
+        height: '100%',
+        justifyContent: 'center',
+    },
+    text: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    }
+});
 
 export default TickerBar;
